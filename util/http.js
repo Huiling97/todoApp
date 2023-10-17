@@ -15,7 +15,7 @@ const getTodos = async () => {
   for (const key in response.data) {
     const todoObj = {
       id: key,
-      amount: response.data[key].amount,
+      priority: response.data[key].priority,
       date: new Date(response.data[key].date),
       description: response.data[key].description
     }

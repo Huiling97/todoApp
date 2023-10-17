@@ -4,7 +4,7 @@ import { getFormattedDate } from '../../util/date';
 
 import { GlobalStyles } from "../../constants/styles";
 
-const TodoItem = ({id, description, date}) => {
+const TodoItem = ({ id, description, date, priority }) => {
   const navigation = useNavigation();
 
   const itemPressHandler = () => {
@@ -25,8 +25,8 @@ const TodoItem = ({id, description, date}) => {
           </Text>
           <Text style={styles.textBase}>Due: {getFormattedDate(date)}</Text>
         </View>
-        <View style={styles.numberContainer}>
-          <Text style={styles.number}></Text>
+        <View style={styles.priorityContainer}>
+          <Text style={styles.priority}>{priority.label}</Text>
         </View>
       </View>
     </Pressable>
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     fontWeight: 'bold',
   },
-  numberContainer: {
+  priorityContainer: {
     paddingHorizontal: 12,
     paddingVertical: 4,
     backgroundColor: 'white',
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     minWidth: 80,
   },
-  number: {
+  priority: {
     color: GlobalStyles.colors.primary500,
     fontWeight: 'bold',
   },
