@@ -2,16 +2,15 @@ import { View, StyleSheet, Text } from "react-native";
 import { useState } from "react";
 import Input from "./Input";
 import Button from "../UI/Button";
+import Dropdown from "../UI/Dropdown";
 import { getFormattedDate, reverseDateFormat } from '../../util/date';
 
 import { GlobalStyles } from "../../constants/styles";
 
 const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
-  console.log(defaultValues);
   const [inputs, setInputs] = useState({
-    amount: {
-      value: defaultValues?.amount?.toString() || '',
-      isValid: true,
+    priority: {
+      value: defaultValues?.priority || {label: 'None', value: 'None'},
     },
     date: {
       value: defaultValues ? getFormattedDate(defaultValues?.date) : '',
@@ -34,63 +33,63 @@ const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
 
   const submitHandler = () => {
     const todoData = {
-      amount: +inputs.amount.value,
+      priority: inputs.priority.value,
       date: new Date(reverseDateFormat(inputs.date.value)),
       description: inputs.description.value
     };
 
-    const amountIsValid = !isNaN(todoData.amount) && todoData.amount > 0;
     const dateIsValid = todoData.date.toString() !== 'Invalid Date';
     const descriptionIsValid = todoData.description.trim().length > 0;
 
-    if (!amountIsValid || !dateIsValid || !descriptionIsValid) {
+    if (!dateIsValid || !descriptionIsValid) {
       setInputs((currInput) => {
+        console.log('currInput.priority.value', currInput.priority.value);
         return {
-          amount: { value: currInput.amount.value, isValid: amountIsValid },
+          priority: { value: currInput.priority.value },
           date: { value: currInput.date.value, isValid: dateIsValid },
           description: { value: currInput.description.value, isValid: descriptionIsValid }
         }
       })
       return;
     }
+    console.log('todoData', todoData);
 
     onSubmit(todoData);
   }
 
-  const formIsInvalid = !inputs.amount.isValid || !inputs.date.isValid || !inputs.description.isValid;
+  const formIsInvalid = !inputs.date.isValid || !inputs.description.isValid;
 
   return (
     <View style={styles.form}>
       <Text style={styles.title}>Your Todo</Text>
       <View style={styles.inputsRow}>
-        <Input 
+        <Dropdown 
           style={styles.rowInput}
-          label="Amount"
-          invalid={!inputs.amount.isValid}
-          textInputConfig={{
-          keyboardType: 'decimal-pad',
-          onChangeText: inputChangeHandler.bind(this, 'amount'),
-          value: inputs.amount.value
-        }}/>
+          label="Priority"
+          selectedOption={inputs.priority.value}
+          onChangeOption={inputChangeHandler.bind(this, 'priority')}
+        />
         <Input 
           style={styles.rowInput}
           label="Date"
           invalid={!inputs.date.isValid}
           textInputConfig={{
-          placeholder: 'DD-MM-YYYY',
-          maxLength: 10,
-          onChangeText: inputChangeHandler.bind(this, 'date'),
-          value: inputs.date.value
-        }} />
+            placeholder: 'DD-MM-YYYY',
+            maxLength: 10,
+            onChangeText: inputChangeHandler.bind(this, 'date'),
+            value: inputs.date.value
+          }} 
+        />
       </View>
       <Input 
         label="Description" 
         invalid={!inputs.description.isValid}
         textInputConfig={{
-        multiline: true,
-        onChangeText: inputChangeHandler.bind(this, 'description'),
-        value: inputs.description.value
-      }}/>
+          multiline: true,
+          onChangeText: inputChangeHandler.bind(this, 'description'),
+          value: inputs.description.value
+        }}
+      />
       {formIsInvalid && 
         <Text style={styles.errorText}>
           Invalid input values, please check your entered data.
@@ -141,6 +140,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: -1,
   },
   button: {
     minWidth: 120,
