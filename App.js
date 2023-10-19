@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Ionicons } from '@expo/vector-icons';
 import ManageTodo from "./screens/ManageTodo";
-import RecentTodos from "./screens/RecentTodos";
+import DueSoonTodos from "./screens/DueSoonTodos";
 import AllTodos from "./screens/AllTodos";
 import TodosContextProvider from "./store/todos-context";
 import IconButton from "./components/UI/IconButton";
@@ -31,11 +31,11 @@ const TodosOverview = () => {
       })}
     >
       <BottomTabs.Screen 
-        name="Recent Todos" 
-        component={RecentTodos} 
+        name="Due Soon" 
+        component={DueSoonTodos} 
         options={{
-          title: 'Recent Todos',
-          tabBarLabel: 'Recent',
+          title: 'Due Soon',
+          tabBarLabel: 'Due Soon',
           tabBarIcon: ({ color, size }) => 
             <Ionicons name='hourglass' size={size} color={color}/>
         }}

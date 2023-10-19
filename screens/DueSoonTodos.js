@@ -1,12 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import { TodosContext } from "../store/todos-context";
 import TodosOutput from "../components/TodosOutput/TodosOutput";
-import { getDateMinusDays } from '../util/date';
-import { getTodos } from '../util/http';
 import LoadingOverlay from "../components/UI/LoadingOverlay";
 import ErrorOverlay from "../components/UI/ErrorOverlay";
+import { getDatePlusDays } from '../util/date';
+import { getTodos } from '../util/http';
 
-const RecentTodos = () => {
+const DueSoonTodos = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState();
 
@@ -42,20 +42,20 @@ const RecentTodos = () => {
     )
   }
 
-  const recentTodos = todosCtx.todos.filter((todo) => {
+  const dueSoonTodos = todosCtx.todos.filter((todo) => {
     const today = new Date();
-    const date7DaysAgo = getDateMinusDays(today, 7);
-
-    return (todo.date > date7DaysAgo) && (todo.date <= today);
+    const dateIn7Days = getDatePlusDays(today, 7);
+  
+    return (todo.date >= today) && (todo.date <= dateIn7Days)
   })
 
   return (
     <TodosOutput 
-      todos={recentTodos} 
-      todoPeriod="Last 7 Days" 
-      fallbackText="No todos added for the last 7 days" 
+      todos={dueSoonTodos} 
+      todoPeriod="Due in 7 Days" 
+      fallbackText="No todos due for the next 7 days" 
     />
   )
 }
 
-export default RecentTodos;
+export default DueSoonTodos;
