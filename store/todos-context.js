@@ -35,7 +35,6 @@ const TodosContextProvider = ({ children }) => {
   const [todosState, dispatch] = useReducer(todoReducer, []);
 
   const addTodo = (todoData) => {
-    console.log('todoData', todoData);
     dispatch({ type: 'ADD', payload: todoData });
   }
 

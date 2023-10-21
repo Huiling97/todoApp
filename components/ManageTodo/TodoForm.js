@@ -3,7 +3,7 @@ import { useState } from "react";
 import Input from "./Input";
 import Button from "../UI/Button";
 import Dropdown from "../UI/Dropdown";
-import { getFormattedDate, reverseDateFormat } from '../../util/date';
+import DatePicker from "../UI/DatePicker";
 
 import { GlobalStyles } from "../../constants/styles";
 
@@ -13,8 +13,7 @@ const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
       value: defaultValues?.priority || {label: 'None', value: 'None'},
     },
     date: {
-      value: defaultValues ? getFormattedDate(defaultValues?.date) : '',
-      isValid: true,
+      value: defaultValues ? defaultValues?.date : new Date(),
     },
     description:{
       value: defaultValues?.description || '',
@@ -34,51 +33,39 @@ const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
   const submitHandler = () => {
     const todoData = {
       priority: inputs.priority.value,
-      date: new Date(reverseDateFormat(inputs.date.value)),
+      date: inputs.date.value,
       description: inputs.description.value
     };
 
-    const dateIsValid = todoData.date.toString() !== 'Invalid Date';
     const descriptionIsValid = todoData.description.trim().length > 0;
 
-    if (!dateIsValid || !descriptionIsValid) {
+    if (!descriptionIsValid) {
       setInputs((currInput) => {
-        console.log('currInput.priority.value', currInput.priority.value);
         return {
           priority: { value: currInput.priority.value },
-          date: { value: currInput.date.value, isValid: dateIsValid },
+          date: { value: currInput.date.value },
           description: { value: currInput.description.value, isValid: descriptionIsValid }
         }
       })
       return;
     }
-    console.log('todoData', todoData);
-
     onSubmit(todoData);
   }
 
-  const formIsInvalid = !inputs.date.isValid || !inputs.description.isValid;
+  const formIsInvalid = !inputs.description.isValid;
 
   return (
     <View style={styles.form}>
       <Text style={styles.title}>Your Todo</Text>
       <View style={styles.inputsRow}>
         <Dropdown 
-          style={styles.rowInput}
           label="Priority"
           selectedOption={inputs.priority.value}
           onChangeOption={inputChangeHandler.bind(this, 'priority')}
         />
-        <Input 
-          style={styles.rowInput}
-          label="Date"
-          invalid={!inputs.date.isValid}
-          textInputConfig={{
-            placeholder: 'DD-MM-YYYY',
-            maxLength: 10,
-            onChangeText: inputChangeHandler.bind(this, 'date'),
-            value: inputs.date.value
-          }} 
+        <DatePicker 
+          selectedDate={inputs.date.value}
+          onChangeDate={inputChangeHandler.bind(this, 'date')}
         />
       </View>
       <Input 
