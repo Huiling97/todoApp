@@ -15,9 +15,12 @@ const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
     date: {
       value: defaultValues ? defaultValues?.date : new Date(),
     },
-    description:{
+    description: {
       value: defaultValues?.description || '',
       isValid: true,
+    },
+    completed: {
+      value: !!defaultValues?.completed
     }
   });
 
@@ -34,7 +37,8 @@ const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
     const todoData = {
       priority: inputs.priority.value,
       date: inputs.date.value,
-      description: inputs.description.value
+      description: inputs.description.value,
+      completed: inputs.completed.value,
     };
 
     const descriptionIsValid = todoData.description.trim().length > 0;
@@ -44,7 +48,8 @@ const TodoForm = ({ submitButtonLabel, onCancel, onSubmit, defaultValues }) => {
         return {
           priority: { value: currInput.priority.value },
           date: { value: currInput.date.value },
-          description: { value: currInput.description.value, isValid: descriptionIsValid }
+          description: { value: currInput.description.value, isValid: descriptionIsValid },
+          completed: { value: currInput.completed.value }
         }
       })
       return;

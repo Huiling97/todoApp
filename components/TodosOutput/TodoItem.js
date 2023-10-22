@@ -1,16 +1,51 @@
 import { Pressable, View, Text, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native"; 
+import { Ionicons } from '@expo/vector-icons';
+import { useContext, useState } from "react";
+import { TodosContext } from "../../store/todos-context";
+import { updateTodo } from '../../util/http';
 import { getFormattedDate } from '../../util/date';
+import ErrorOverlay from "../UI/ErrorOverlay";
 
 import { GlobalStyles } from "../../constants/styles";
 
-const TodoItem = ({ id, description, date, priority }) => {
+const TodoItem = ({ id, description, date, priority, completed }) => {
+  const [isCompleted, setIsCompleted] = useState(!!completed);
+  const [error, setError] = useState();
+
   const navigation = useNavigation();
+  const todosCtx = useContext(TodosContext);
+
+  const todoDetails = {
+    id: id,
+    description: description,
+    date: date,
+    priority: priority,
+    completed: completed,
+  }
+
+  const togglePressHandler = async () => {
+    try {
+      setIsCompleted(prevIsCompleted => !prevIsCompleted);
+      const updatedIsCompleted = !isCompleted
+      todosCtx.updateTodo(id, {...todoDetails, completed: updatedIsCompleted})
+      await updateTodo(id, {...todoDetails, completed: updatedIsCompleted})
+    } catch (e) {
+      console.log('catch error', e)
+      setError('Unable to complete todo now, please try again later');
+    }
+  }
 
   const itemPressHandler = () => {
     navigation.navigate('ManageTodo', {
       todoId: id
     });
+  }
+
+  if (error) {
+    return (
+      <ErrorOverlay />
+    )
   }
 
   return (
@@ -19,13 +54,31 @@ const TodoItem = ({ id, description, date, priority }) => {
       style={({pressed}) => pressed && styles.pressed}
     >
       <View style={styles.todoItem}>
-        <View>
-          <Text style={[styles.textBase, styles.description]}>
-            {description}
-          </Text>
-          <Text style={styles.textBase}>Due: {getFormattedDate(date)}</Text>
+          <View style={styles.itemDetails}>
+            <View style={styles.checkboxContainer}>
+              <Pressable 
+                onPress={togglePressHandler}
+                style={[styles.checkbox, isCompleted && styles.hidden]}
+              />
+              {isCompleted && (
+                <Ionicons 
+                  name="checkmark-circle-outline" 
+                  size={38} 
+                  color="white" 
+                  onPress={togglePressHandler}
+                />
+              )}
+            </View>
+            <View>
+              <Text style={[styles.textBase, styles.description, isCompleted && styles.faded]}>
+                {description}
+              </Text>
+              <Text style={[styles.textBase, isCompleted && styles.faded]}>
+                Due: {getFormattedDate(date)}
+              </Text>
+            </View>
         </View>
-        <View style={styles.priorityContainer}>
+        <View style={[styles.priorityContainer, isCompleted && styles.faded]}>
           <Text style={styles.priority}>{priority.label}</Text>
         </View>
       </View>
@@ -37,7 +90,7 @@ export default TodoItem;
 
 const styles = StyleSheet.create({
   pressed: {
-    opacity: 0.75
+    opacity: 0.75,
   },
   todoItem: {
     padding: 12,
@@ -60,6 +113,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     fontWeight: 'bold',
   },
+  itemDetails: {
+    flexDirection: 'row',
+  },  
   priorityContainer: {
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -73,4 +129,26 @@ const styles = StyleSheet.create({
     color: GlobalStyles.colors.primary500,
     fontWeight: 'bold',
   },
+  checkboxContainer: {
+    paddingRight: 12,
+  },
+  checkbox: {
+    width: 28,
+    height: 30,
+    marginRight: 10,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    left: 3,
+    top: 4
+  },
+  hidden: {
+    display: 'none',
+  },
+  faded: {
+    opacity: 0.50,
+  }
 });
