@@ -1,7 +1,7 @@
 import { Pressable, View, Text, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native"; 
 import { Ionicons } from '@expo/vector-icons';
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { TodosContext } from "../../store/todos-context";
 import { updateTodo } from '../../util/http';
 import { getFormattedDate } from '../../util/date';
@@ -9,27 +9,25 @@ import ErrorOverlay from "../UI/ErrorOverlay";
 
 import { GlobalStyles } from "../../constants/styles";
 
-const TodoItem = ({ id, description, date, priority, completed }) => {
+const TodoItem = (item) => {
+  const { id, description, date, priority, completed } = item
+
   const [isCompleted, setIsCompleted] = useState(!!completed);
   const [error, setError] = useState();
 
   const navigation = useNavigation();
   const todosCtx = useContext(TodosContext);
 
-  const todoDetails = {
-    id: id,
-    description: description,
-    date: date,
-    priority: priority,
-    completed: completed,
-  }
+  useEffect(() => {
+    setIsCompleted(!!completed);
+  }, [completed])
 
   const togglePressHandler = async () => {
     try {
       setIsCompleted(prevIsCompleted => !prevIsCompleted);
       const updatedIsCompleted = !isCompleted
-      todosCtx.updateTodo(id, {...todoDetails, completed: updatedIsCompleted})
-      await updateTodo(id, {...todoDetails, completed: updatedIsCompleted})
+      todosCtx.updateTodo(id, {...item, completed: updatedIsCompleted})
+      await updateTodo(id, {...item, completed: updatedIsCompleted})
     } catch (e) {
       console.log('catch error', e)
       setError('Unable to complete todo now, please try again later');
